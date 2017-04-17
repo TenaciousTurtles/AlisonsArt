@@ -50,7 +50,9 @@ class CreateAuction extends React.Component {
     })
   }
 
-  handleSubmit() {
+  handleSubmit(e) {
+    e.preventDefault();
+    console.log('clicked');
     let artwork = {
       artist_id: Number(this.state.userId),
       age: this.state.age,
@@ -236,7 +238,7 @@ class CreateAuction extends React.Component {
               value={this.state.end_date}
             />
           </Form.Group>
-          <Button onClick={this.handleSubmit}>Submit Auction</Button>
+          <Button onClick={e => {this.handleSubmit(e)}}>Submit Auction</Button>
         </Form>
         <Divider />
       </Container>
