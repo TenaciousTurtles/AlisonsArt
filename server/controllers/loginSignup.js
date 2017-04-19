@@ -1,6 +1,8 @@
 const router = require('express').Router();
 const model = require('../database/queries');
 const Moment = require('moment');
+const jwt = require('jsonwebtoken');
+const config = require('../config.js'); //holds jwtSecret
 
 const serverErr = { ERR: { status: 500, message: 'Something went wrong. So Sorry!' } };
 
@@ -15,10 +17,14 @@ router.post('/login', (req, res) => {
     } else {
     //check if password matches the ones in database, consider HASH
       if (response[0].password === password) {
-        res.status(201).send(JSON.stringify({
+        //succeed! we can assign a token here!
+        let authToken = jwt.sign({
           username: username,
-           userId: response[0].id
-        }));
+          userId: response[0].id,
+          isAuthenticated: true,
+          exp: Math.floor(Date.now() / 1000) + (60 * 60 * 24)
+        }, config.jwtSecret);
+        res.status(201).send(JSON.stringify(authToken));
       } else {
         throw Error('Wrong password');
       }
@@ -51,10 +57,14 @@ router.post('/signup', (req, res) => {
     }
   })
   .then((result) => {
-    res.status(201).send(JSON.stringify({
-      username: username,
-       userId: result[0].id
-    }));
+    let authToken = jwt.sign({
+          username: username,
+          userId: result[0].id,
+          isAuthenticated: true,
+          exp: Math.floor(Date.now() / 1000) + (60 * 60 * 24)
+        }, config.jwtSecret);
+
+    res.status(201).send(JSON.stringify(authToken));
   })
   .catch(err => {
     console.log(err.code);
@@ -64,38 +74,6 @@ router.post('/signup', (req, res) => {
     } else {
       res.status(500).send(err);
     }
-  });
-});
-
-router.post('/signup', (req, res) => {
-  let { username, password, firstName, lastName, email, address } = req.body;
-  //check if user exists 
-  Promise.all([model.getUserByName(username), model.getUserByEmail(email)])
-  .then(response => {
-    //username taken or email taken.
-    if(response.length === 1) {
-      throw Error('username or email already exists!');
-    } else {
-      // const query = {
-      //   password: password
-      //   username: username
-      //   first_name: firstName
-      //   last_name: lastName
-      //   address:
-      //   email:
-      //   type:
-      // };
-      return model.createUser(req.body);
-    }
-  })
-  .then((result) => {
-    res.status(201).send(JSON.stringify({
-      username: username,
-       userId: result[0].id
-    }));
-  })
-  .catch(err => {
-    res.status(400).send('sign-in error: ' + err);
   });
 });
 
