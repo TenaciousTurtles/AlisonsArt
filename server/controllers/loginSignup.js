@@ -2,6 +2,7 @@ const router = require('express').Router();
 const model = require('../database/queries');
 const Moment = require('moment');
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt-promised');
 
 const serverErr = { ERR: { status: 500, message: 'Something went wrong. So Sorry!' } };
 
@@ -14,9 +15,8 @@ router.post('/login', (req, res) => {
     if(response.length === 0) {
       throw Error('user does not exist!');
     } else {
-    //check if password matches the ones in database, consider HASH
-      if (response[0].password === password) {
-        //succeed! we can assign a token here!
+      bcrypt.compare(password, response[0].password)
+      .then(result => {
         let authToken = jwt.sign({
           username: username,
           userId: response[0].id,
@@ -27,9 +27,7 @@ router.post('/login', (req, res) => {
         res.setHeader('x-username', username);
         res.setHeader('x-userId', response[0].id);
         res.status(201).send(JSON.stringify(authToken));
-      } else {
-        throw Error('Wrong password');
-      }
+      });
     }
   })
   .catch(err => {
@@ -55,8 +53,17 @@ router.post('/signup', (req, res) => {
       //   email:
       //   type:
       // };
-      return model.createUser(req.body);
+      const saltRounds = 10;
+     return bcrypt.hash(password, saltRounds)
+            .then(hash => {
+              let userObj = Object.assign({}, req.body);
+              userObj.password = hash;
+              return userObj;
+            });
     }
+  })
+  .then(result => {
+    return model.createUser(result);
   })
   .then((result) => {
     let authToken = jwt.sign({
