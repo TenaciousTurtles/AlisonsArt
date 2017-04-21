@@ -20,17 +20,19 @@ var csClosedAuctions = new helpers.ColumnSet(['auction_id', 'winner', 'payment_s
 
 module.exports = function insertDummyData(db) {
   return db.tx((t) => {
-
-    var userInserts = t.none(helpers.insert(users, csUsers));
-    var artWorkInserts = t.none(helpers.insert(artworks, csArtWorks));
-    var auctionInserts = t.none(helpers.insert(auctions, csAuctions));
-    var bidInserts = t.none(helpers.insert(bids, csBids));
-    var profileInserts = t.none(helpers.insert(profiles, csProfiles));
-    var notificationInserts = t.none(helpers.insert(notifications, csNotifications));
-    var closedAuctionsInserts = t.none(helpers.insert(closedAuctions, csClosedAuctions));
+   
+    var multiInsert = helpers.concat([
+      helpers.insert(users, csUsers),
+      helpers.insert(artworks, csArtWorks),
+      helpers.insert(auctions, csAuctions),
+      helpers.insert(bids, csBids),
+      helpers.insert(profiles, csProfiles),
+      helpers.insert(notifications, csNotifications),
+      helpers.insert(closedAuctions, csClosedAuctions)
+    ]);
     
-        return t.batch([userInserts, artWorkInserts, auctionInserts, bidInserts, profileInserts, closedAuctionsInserts, notificationInserts]);
-    })
+    return t.none(multiInsert);
+  })
   .then(() => {
     console.log('success seeding data');
   })
