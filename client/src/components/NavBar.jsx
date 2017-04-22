@@ -7,8 +7,10 @@ import * as UserActions from './../actions/userActionCreator.jsx';
 class NavBar extends Component {
   handleLogout() {
     let { dispatch } = this.props;
-    dispatch(UserActions.logOut());
     localStorage.removeItem('authToken');
+      dispatch(UserActions.logOut());
+    // setTimeout(function() {
+    // }, 2000);
   }
   render() {
     let {username, userId} = this.props;

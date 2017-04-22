@@ -30,7 +30,7 @@ class Auction extends Component {
       }
         dispatch(Auctions.fetchingAnAuction(false));
         if (response.headers.get('x-username') && response.headers.get('x-userId')) {
-          dispatch(UserActions.logInSuccess(response.headers.get('x-username'), response.headers.get('x-userId')));
+          dispatch(UserActions.logInSuccess(response.headers.get('x-username'), response.headers.get('x-userId'), response.headers.get('x-type') === 'artist'));
         }
         return response.json();
     })
@@ -67,7 +67,7 @@ class Auction extends Component {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${localStorage.getItem('authToken')}`
           }),
-          body: JSON.stringify({ bidPrice: bid.bid, user: user.userId })
+          body: JSON.stringify({ bidPrice: bid.bid })
         })
         .then((answer) => {
           if (!answer.ok) {
