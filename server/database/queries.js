@@ -351,6 +351,10 @@ module.exports = {
   updateUser() {
     //TODO
   },
+  saveArtwork(user_id, artwork_id) {
+
+  },
+
   updateUserNotification({id, owner_id}) {
   /*{
       id 
