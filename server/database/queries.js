@@ -351,8 +351,20 @@ module.exports = {
   updateUser() {
     //TODO
   },
-  saveArtwork(user_id, artwork_id) {
 
+  saveAuction(user_id, auction_id) {
+    let auctionId = Number(auction_id);
+    return db.oneOrNone('SELECT * FROM saves WHERE user_id=$1 AND auction_id=$2', [user_id, auctionId])
+    .then(data => {
+      if(data && Object.keys(data).length > 0) {
+        return 'existing save';
+      }
+      return db.none(`INSERT INTO saves \
+        (user_id, auction_id) \
+        values \
+        (${user_id}, ${auctionId})`
+      );
+    });
   },
 
   updateUserNotification({id, owner_id}) {
