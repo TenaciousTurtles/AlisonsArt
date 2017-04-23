@@ -10,6 +10,7 @@ class Artist extends Component {
   constructor(props){
     super(props);
     this._socialMedia = this._socialMedia.bind(this);
+    this._handleFollow = this._handleFollow.bind(this);
   }
 
   componentWillMount() {
@@ -40,9 +41,31 @@ class Artist extends Component {
       window.open(link);
     }
   }
+
+  _handleFollow() {
+    fetch('/follows', {
+      method: 'POST',
+      headers: new Headers({
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${sessionStorage.getItem('authToken')}`
+      }),
+      body: JSON.stringify(this.props.match.params.artistId)
+    })
+    .then(response => {
+      if (!respones.ok) {
+        throw Error('failed to follow!');
+      }
+      return true;
+    })
+    .then(data => {
+      console.log('followed artist!');
+    })
+    .catch(err => {
+      alert('Something went wrong, can\'t follow artist');
+    });
+  }
   
   render(){
-    console.log('ha');
     let { dispatch, ongoingAuctions, passedAuctions } = this.props;
     let { isFetching, fetchArtistErrored, fetchedArtist } = this.props.artist;
     if (fetchArtistErrored) {
@@ -80,7 +103,7 @@ class Artist extends Component {
               <Container>
                 <span>{username}</span>
                 {' '}
-                <button>Direct message</button>
+                <Button>Direct message</Button>
                 {' '}
                 {fb_link ? <Button circular color='facebook' icon='facebook' onClick={() => {
                   this._socialMedia(fb_link);
@@ -93,6 +116,7 @@ class Artist extends Component {
                 {inst_link ? <Button circular color='instagram' icon='instagram' onClick={() => {
                   this._socialMedia(inst_link);
                 }}/> : null}
+                <Button icon="heart" content="follow this artist" onClick={this._handleFollow} />
               </Container>
               <Grid verticalAlign='middle'>
                 <Grid.Row>
