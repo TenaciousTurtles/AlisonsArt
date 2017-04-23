@@ -42,6 +42,8 @@ class Artist extends Component {
   }
   
   render(){
+    console.log('ha');
+    let { dispatch, ongoingAuctions, passedAuctions } = this.props;
     let { isFetching, fetchArtistErrored, fetchedArtist } = this.props.artist;
     if (fetchArtistErrored) {
       return (
@@ -105,18 +107,29 @@ class Artist extends Component {
                 </Grid.Row>
               </Grid>
             </Container>
-            <Grid columns={2}>
-              <Grid.Row>
+            <Grid divided={true}>
+            Ongoing auctions:
+              <Grid.Row columns={3}>
+              {ongoingAuctions.length === 0 ? <span>No ongoing auctions for this artist</span> : null}
+              {ongoingAuctions.map(auction => (
                 <Grid.Column>
-                  <h3>Ongoing auctions:</h3>
-                  <ArtistAuctions flag="current" history={history}/>
+                  <ArtistAuctions auction={auction} history={history} dispatch={dispatch} />
                 </Grid.Column>
-                <Grid.Column>
-                  <h3>Previous auctions:</h3>
-                  <ArtistAuctions flag="previous" history={history} />
-                </Grid.Column>
+                ))}
               </Grid.Row>
             </Grid>
+            <Grid divided={true}>
+            Passed auctions:
+              <Grid.Row columns={3}>
+              {passedAuctions.length === 0 ? <span>No passed auctions for this artist</span> : null}
+              {passedAuctions.map(auction => (
+                <Grid.Column>
+                  <ArtistAuctions auction={auction} history={history} dispatch={dispatch} />
+                </Grid.Column>
+                ))}
+              </Grid.Row>
+            </Grid>
+
           </Container>
         )
       }
@@ -126,7 +139,9 @@ class Artist extends Component {
 
 const mapStateToProps = (state) => {
   return {
-    artist: state.artist
+    artist: state.artist,
+    ongoingAuctions: state.artist.fetchedArtist.ongoingAuctions,
+    passedAuctions: state.artist.fetchedArtist.passedAuctions
   };
 };
 
