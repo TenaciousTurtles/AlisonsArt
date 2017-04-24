@@ -148,13 +148,13 @@ class Artist extends Component {
             </div>
           );
         }
-        let { fb_link, twitter_link, inst_link, profile, username} = fetchedArtist.profile;
+        let { fb_link, twitter_link, inst_link, profile, first_name, last_name} = fetchedArtist.profile;
         let { history } = this.props;
         return (
           <Container>
             <Container>
               <Container>
-                <span>{username}</span>
+                <span>{first_name} {last_name}</span>
                 {' '}
                 <Button>Direct message</Button>
                 {' '}
