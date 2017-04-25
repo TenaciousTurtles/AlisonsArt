@@ -40,7 +40,7 @@ router.post('/:userId/changePassword', authenticate, (req, res) => {
       });
     })
     .catch(err => {
-      res.status(400).send('Failed to change password');
+      res.status(400).send('You entered wrong current password');
     });
   })
   .catch(err => {

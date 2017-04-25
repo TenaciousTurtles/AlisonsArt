@@ -57,8 +57,6 @@ class UserSettings extends Component {
   _submitHandler(e) {
     e.preventDefault();
     let { userId } = this.props.user;
-    // _setInputsToNull();
-    // this.setState({toggle: !this.state.toggle});
     if (newPassword.value !== confirmPassword.value) {
       alert('Please enter the same password');
       _setInputsToNull();
@@ -76,7 +74,7 @@ class UserSettings extends Component {
       })
       .then(response => {
         if (!response.ok) {
-          throw Error('ah!');
+          throw Error('Failed');
         }
         return response.text();
       })
