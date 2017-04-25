@@ -1,3 +1,18 @@
+body {
+  padding-top: 150px;
+}
+
+.navbar {
+  z-index: 100;
+  background-color: white;
+  overflow: hidden;
+  position: fixed;
+  top: 0;
+  width: 93%;
+  margin-left: -7%;
+  /*white-space: nowrap;*/
+}
+
 .carousel {
   max-height: 400px;
   width: 100%;
@@ -13,12 +28,6 @@
 
 .imageHeader {
   margin-bottom: 5px;
-}
-
-.navBar {
-  float: left;
-  text-align: left;
-  display: inline-block;
 }
 
 .authLink {
@@ -56,13 +65,15 @@
 
 .messageWindow {
   position: fixed;
+  bottom: 5px;
+  right: 10px;
   width: 250px;
   height: 300px;
-  z-index: 5;
+  z-index: 100;
 }
 
 .messageInput {
-  position: fixed;
+  position: /*fixed*/;
   bottom: 0;
 }
 
