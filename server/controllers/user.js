@@ -1,6 +1,6 @@
 const router = require('express').Router();
 const model = require('../database/queries');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcrypt-promised');
 const authenticate = require('../middlewares/authenticate.js');
 
 const serverErr = { ERR: { status: 500, message: 'Something went wrong. So Sorry!' } };
@@ -20,12 +20,31 @@ router.get('/:userId', authenticate, (req, res) => {
 });
 
 router.post('/:userId/changePassword', authenticate, (req, res) => {
-  model.changeUserPassword(req.body.userId, req.body.password)
+  let { currentPassword, newPassword } = req.body;
+  let { userId } = req.user;
+
+  model.getUser(userId)
   .then(response => {
-    res.status(201).send('changed password');
+    bcrypt.compare(currentPassword, response[0].password)
+    .then(result => {
+      if (result) {
+        //hash password and update password
+        const saltRounds = 10;
+        bcrypt.hash(newPassword, saltRounds)
+        .then(hash => {
+          return model.changeUserPassword(userId, hash)
+          .then(response => {
+            res.status(201).send('Successfully changed password');
+          });
+        });
+      } else {
+        console.log('wrong');
+        throw Error('Wrong current password!');
+      }
+    });
   })
   .catch(err => {
-    res.status(400).send('failed to change password');
+    res.status(400).send('Failed to change password');
   });
 });
 

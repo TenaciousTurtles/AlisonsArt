@@ -12,21 +12,31 @@ const _setInputsToNull = () => {
   confirmPassword.value = '';
 };
 
-const ChangePassword = () => {
-  return (
-    <Segment>
-      <br />
-      Current password:
-      <Input type="password" placeholder="current password" ref={node => currentPassword = node} />
-      <br />
-      New password:
-      <Input type="password" placeholder="new password" ref={node => newPassword = node} />
-      <br />
-      Confirm password:
-      <Input type="password" placeholder="confirm password" ref={node => confirmPassword = node} />
-      <Input type="submit" value="Submit" />
-    </Segment>
-  );
+class ChangePassword extends Component {
+//please do NOT change the input into semantic Input, things break!!!
+//NEED TO SET THE WIDTH OF THE FORM:
+  render() {
+    return (
+      <span className="ui form">
+        <br />
+        Current password:
+        <input as='input' type="password" placeholder="current password" ref={node => {
+          currentPassword = node
+        }} />
+        <br />
+        New password:
+        <input as='input' type="password" placeholder="new password" ref={node => {
+          newPassword = node
+        }} />
+        <br />
+        Confirm password:
+        <input type="password" placeholder="confirm password" ref={node => {
+          confirmPassword = node
+        }} />
+        <Input type="submit" value="Submit" />
+      </span>
+    );
+  }
 }
 
 class UserSettings extends Component {
@@ -47,56 +57,37 @@ class UserSettings extends Component {
   _submitHandler(e) {
     e.preventDefault();
     let { userId } = this.props.user;
-    fetch('/user/' + userId, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${sessionStorage.getItem('authToken')}`
-      }
-    })
-    .then(response => {
-      if (!response.ok) {
-        throw Error(response.statusText);
-      }
-
-      return response.json();
-    })
-    .then(data => {
-      if (currentPassword.value === data.password) {
-        if (newPassword.value === confirmPassword.value) {
-          fetch('/user/' + userId + '/changePassword', {
-            headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${sessionStorage.getItem('authToken')}`
-            },
-            method: 'POST',
-            body: JSON.stringify({
-              userId: userId,
-              password: newPassword.value
-            })
-          })
-          .then(response => {
-            if (!response.ok) {
-              throw Error('error');
-            } else {
-              alert('Successfully changed password');
-              _setInputsToNull();
-              this.setState({toggle: !this.state.toggle});
-            }
-          })
-        } else {
-          alert('Please enter the same password');
-          _setInputsToNull();
+    // _setInputsToNull();
+    // this.setState({toggle: !this.state.toggle});
+    if (newPassword.value !== confirmPassword.value) {
+      alert('Please enter the same password');
+      _setInputsToNull();
+    } else {
+      fetch('/user/' + userId + '/changePassword', {
+        headers: new Headers({
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${sessionStorage.getItem('authToken')}`
+        }),
+        method: 'POST',
+        body: JSON.stringify({
+          currentPassword: currentPassword.value,
+          newPassword: newPassword.value
+        })
+      })
+      .then(response => {
+        if (!response.ok) {
+          console.log(response.statusText);
+          throw Error('ah!');
         }
-      } else {
-        alert('You entered the wrong current password');
-        _setInputsToNull();
-      }
-    })
-    .catch(err => {
-      alert('Error: change password failed!');
-       _setInputsToNull();
-    });
+        return response.text();
+      })
+      .then(data => {
+        console.log('im data : ', data);
+      })
+      .catch(err => {
+        console.log('error: ', err.message);
+      })
+    }
   }
 
   render(){
