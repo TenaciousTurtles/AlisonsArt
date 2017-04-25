@@ -27,20 +27,20 @@ router.post('/:userId/changePassword', authenticate, (req, res) => {
   .then(response => {
     bcrypt.compare(currentPassword, response[0].password)
     .then(result => {
-      if (result) {
-        //hash password and update password
-        const saltRounds = 10;
-        bcrypt.hash(newPassword, saltRounds)
-        .then(hash => {
-          return model.changeUserPassword(userId, hash)
-          .then(response => {
-            res.status(201).send('Successfully changed password');
-          });
+      const saltRounds = 10;
+      bcrypt.hash(newPassword, saltRounds)
+      .then(hash => {
+        return model.changeUserPassword(userId, hash)
+        .then(response => {
+          res.status(201).send('Successfully changed password');
+        })
+        .catch(err => {
+          res.status(400).send('Failed to change password');
         });
-      } else {
-        console.log('wrong');
-        throw Error('Wrong current password!');
-      }
+      });
+    })
+    .catch(err => {
+      res.status(400).send('Failed to change password');
     });
   })
   .catch(err => {

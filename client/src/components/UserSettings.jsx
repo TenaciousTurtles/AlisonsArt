@@ -13,7 +13,7 @@ const _setInputsToNull = () => {
 };
 
 class ChangePassword extends Component {
-//please do NOT change the input into semantic Input, things break!!!
+//please do NOT change the input into semantic Input, things break!!! and don't change the outer most span into semantic-ui thing. it breaks as well.
 //NEED TO SET THE WIDTH OF THE FORM:
   render() {
     return (
@@ -76,16 +76,19 @@ class UserSettings extends Component {
       })
       .then(response => {
         if (!response.ok) {
-          console.log(response.statusText);
           throw Error('ah!');
         }
         return response.text();
       })
       .then(data => {
-        console.log('im data : ', data);
+         alert('Successfully changed the password');
+         this.setState({
+          toggle: !this.state.toggle
+         });
       })
       .catch(err => {
-        console.log('error: ', err.message);
+        alert('Failed to change password');
+        _setInputsToNull();
       })
     }
   }
