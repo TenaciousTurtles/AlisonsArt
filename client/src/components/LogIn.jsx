@@ -7,6 +7,14 @@ import * as SocketActions from './../actions/socketActionCreator.jsx';
 //when login success, needs to save info in userReducer
 class LogIn extends Component {
 
+  componentWillMount() {
+    //check redux store, if user redirect
+    console.log('user in login: ', this.props.user);
+    if (this.props.user.username) {
+      console.log('lala');
+    }
+  }
+
   _handleSubmit(e) {
     e.preventDefault();
     let { dispatch } = this.props;
@@ -37,7 +45,7 @@ class LogIn extends Component {
         throw Error('Log in post not ok!');
       }
 
-      dispatch(UserActions.logInSuccess(response.headers.get('x-username'), response.headers.get('x-userId'), response.headers.get('x-type') === 'artist'));
+      dispatch(UserActions.logInSuccess(response.headers.get('x-username'), response.headers.get('x-userId'), response.headers.get('x-userEmail'), response.headers.get('x-type') === 'artist'));
       dispatch(SocketActions.loginSocket(response.headers.get('x-userId')));
       return response.json();
     }).then(data => {
@@ -57,7 +65,9 @@ class LogIn extends Component {
 
   render(){
     const { error } = this.props.user;
-
+    if(this.props.user.username) {
+      this.props.history.push('/home');
+    }
     return (
       <div className='authForm'>
         <h3>Login</h3>
