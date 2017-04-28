@@ -32,7 +32,7 @@ a {
   margin-bottom: 10px;
 }
 
-.thumbnails {
+.thumbnails, .teamphoto {
   position: relative;
   width: 280px;
   max-width: 100%;
@@ -41,6 +41,13 @@ a {
   background-position: 50% 50%;
   background-repeat: no-repeat;
   background-size: cover;
+}
+
+.teamphoto {
+  width: 350px;
+  height: 340px;
+  background-position: 20% 25%;
+  float: right;
 }
 .profile {
   width: 180px;
@@ -57,6 +64,10 @@ a {
   color: black;
   font-size: 16px;
   margin-bottom: 5px;
+}
+
+.stripeButtonContainer {
+  margin-bottom: 10px;
 }
 
 .userFormWrapper {
@@ -90,10 +101,6 @@ a {
   overflow: hidden;
 }
 
-/*.auctionsFrame {
-  height: 380px;
-}*/
-
 .auctionType {
   margin-top: 10px;
   margin-bottom: 3px;
@@ -102,6 +109,19 @@ a {
 
 .auctionInfo {
   padding-left: 14px;
+}
+
+/*.auctionImage {
+  width: 700px;
+  height: 600px;
+  max-width: 100%;
+  max-height: 100%;
+  background-repeat: no-repeat;
+  align-items: center;
+}*/
+
+.auctionDescription {
+  align-items: left;
 }
 
 .imageHeader {
