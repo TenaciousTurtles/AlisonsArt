@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Grid, Card, Image, Divider, Icon, Container, Dimmer, Loader, Message } from 'semantic-ui-react';
+import { Grid, Card, Image, Divider, Container, Dimmer, Loader } from 'semantic-ui-react';
 import ImageGallery from 'react-image-gallery';
 import { connect } from 'react-redux';
 import * as Auctions from '../actions/auctionActionCreator.jsx';
@@ -21,50 +21,6 @@ const _formatMoney = (money) => {
   return money.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
 };
 
-const MessageWrapper = ({ data, isFetching, hasErrored, error, Component, history }) => {
-  if (isFetching) {
-    return (
-      <Message icon>
-        <Icon name="circle notched" loading />
-        <Message.Content>
-          <Message.Header>Just a second!</Message.Header>
-          Content is on the way.
-        </Message.Content>
-      </Message>
-    );
-  }
-
-  if (hasErrored) {
-    return (
-      <Container>
-        <Message
-          header="Something Went Wrong!"
-          content="There's been an error loading this page. How about checking out some art and coming back in a minute?"
-        />
-      </Container>
-    );
-  }
-
-  if (data.length === 0) {
-    return (
-      <Container>
-        <Message
-          header="There doesn't seem to be any content here. Maybe you should make some."
-          content="Signing up is quick and easy, click here to get started."
-        />
-      </Container>
-    );
-  }
-  
-  return (
-    <Component
-      data={data}
-      history={history}
-    />
-  );
-
-};
-
 // render the description ... as floating right of the image
 // closed auctions should be rendered differently from the ongoing ones
 const MainArt = ({ art, history }) => {
@@ -80,30 +36,33 @@ const MainArt = ({ art, history }) => {
   );
 };
 
-const MainArts = ({ data, history }) => {
-  const mainArts = data;
-  let images = [];
-  mainArts.forEach((item) => {
-    const imageObj = {
-      original: `${item.artwork.image_url}?${item.id}`,
-      description: `${item.first_name} ${item.last_name} Closing Price: $${_formatMoney(+item.buyout_price)}`, 
-    };
-    images.push(imageObj);
-  });
-  // shoud add acution id to onImage click
-  return (
-    <div className="carousel">
-      <ImageGallery
-        items={images}
-        slideInterval={7000}
-        autoPlay={true}
-        showThumbnails={false}
-        showFullscreenButton={false}
-        showPlayButton={false}
-        onClick={(e) => {onImageClick(e, history)}}
-      />
-    </div>
-  );
+const MainArts = ({ mainArts, history }) => {
+  if (!mainArts[0]) {
+    return <p>loading...</p>;
+  } else {
+    let images = [];
+    mainArts.forEach((item) => {
+      const imageObj = {
+        original: `${item.artwork.image_url}?${item.id}`,
+        description: `${item.first_name} ${item.last_name} Closing Price: $${_formatMoney(+item.buyout_price)}`, 
+      };
+      images.push(imageObj);
+    });
+    // shoud add acution id to onImage click
+    return (
+      <div className="carousel">
+        <ImageGallery
+          items={images}
+          slideInterval={7000}
+          autoPlay={true}
+          showThumbnails={false}
+          showFullscreenButton={false}
+          showPlayButton={false}
+          onClick={(e) => {onImageClick(e, history)}}
+        />
+      </div>
+    );
+  }
 };
 
 const HomeAuction = ({ homeAuction, history }) => {
@@ -123,16 +82,18 @@ const HomeAuction = ({ homeAuction, history }) => {
   );
 };
 
-// not using dispatch for the moment
-const HomeAuctions = ({ data, history }) => {
-  const homeAuctions = data;
-  return (
-    <Grid columns="equal">
-      <Grid.Row className="frame-square" columns={3}>
-        {homeAuctions.map(homeAuction => <HomeAuction key={homeAuction.artwork.id} homeAuction={homeAuction} history={history} />)}
-      </Grid.Row>
-    </Grid>
-  );
+const HomeAuctions = ({ homeAuctions, history }) => {
+  if (!homeAuctions[0]) {
+    return <p>loading~~~</p>;
+  } else {
+    return (
+      <Grid columns="equal">
+        <Grid.Row className="frame-squre" columns={3}>
+          {homeAuctions.map(homeAuction => <HomeAuction key={homeAuction.artwork.id} homeAuction={homeAuction} history={history} />)}
+        </Grid.Row>
+      </Grid>
+    );
+  }
 };
 
 const clickArtist = (id, history, dispatch) => {
@@ -155,15 +116,18 @@ const HomeArtist = ({ artist, history }) => {
   );
 };
 
-const HomeArtists = ({ data, history }) => {
-  const homeArtists = data;
-  return (
-    <Grid>
-      <Grid.Row columns={3}>
-        {homeArtists.map(homeArtist => <HomeArtist key={homeArtist.id} artist={homeArtist} history={history} />)}
-      </Grid.Row>
-    </Grid>
-  );
+const HomeArtists = ({ homeArtists, history }) => {
+  if (!homeArtists[0]) {
+    return <div>loading~~~~</div>;
+  } else {
+    return (
+      <Grid>
+        <Grid.Row columns={3}>
+          {homeArtists.map(homeArtist => <HomeArtist key={homeArtist.id} artist={homeArtist} history={history} />)}
+        </Grid.Row>
+      </Grid>
+    );
+  }
 };
 
 class Home extends Component {
@@ -176,12 +140,10 @@ class Home extends Component {
     // Auctions.fetchAuctionData('/auctions');
     dispatch(Auctions.fetchingAuctions(true));
 
-    fetch('/home')
+    fetch(`/home`)
     .then((response) => {
       if (!response.ok) {
-        const error = new Error(response.statusText);
-        error.status = response.error;
-        throw error;
+        throw Error(response.statusText);
       }
       dispatch(Auctions.fetchingAuctions(false));
       return response.json();
@@ -192,44 +154,22 @@ class Home extends Component {
       dispatch(Auctions.ongoingAuctionsFetchedSuccess(current));
       dispatch(Auctions.featuredArtsFetchedSuccess(featuredArt));
     })
-    .catch((err) => {
+    .catch(() => {
       dispatch(Auctions.fetchingAuctions(false));
-      dispatch(Auctions.fetchAuctionErrored(true, err));
+      dispatch(Auctions.fetchAuctionErrored(true));
     });
   }
 
   render () {
-    const { mainArts, homeAuctions, homeArtists, hasErrored, error, history, isFetching } = this.props;
     return (
       <div>
-        <MessageWrapper
-          Component={MainArts}
-          data={mainArts}
-          isFetching={isFetching}
-          hasErrored={hasErrored}
-          error={error}
-          history={history}
-        />
+        <MainArts mainArts={this.props.mainArts} history={this.props.history} />
         <Divider />
         <h3>Auctions</h3>
-        <MessageWrapper
-          Component={HomeAuctions}
-          data={homeAuctions}
-          isFetching={isFetching}
-          hasErrored={hasErrored}
-          error={error}
-          history={history}
-        />
+        <HomeAuctions homeAuctions={this.props.homeAuctions} history={this.props.history} />
         <h3>Artists</h3>
         <Divider />
-        <MessageWrapper
-          Component={HomeArtists}
-          data={homeArtists}
-          isFetching={isFetching}
-          hasErrored={hasErrored}
-          error={error}
-          history={history}
-        />
+        <HomeArtists homeArtists={this.props.homeArtists} history={this.props.history} />
       </div>
     );
   }
@@ -241,10 +181,7 @@ const mapStateToProps = (state) => {
   return {
     mainArts: state.auctions.fetchedPassedAuctions,
     homeAuctions: state.auctions.fetchedOngoingAuctions,
-    homeArtists: state.auctions.fetchedFeaturedArts,
-    isFetching: state.auctions.isFetching,
-    hasErrored: state.auctions.hasErrored,
-    error: state.auctions.fetchAuctionsError
+    homeArtists: state.auctions.fetchedFeaturedArts
   };
 };
 

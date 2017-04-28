@@ -17,15 +17,3 @@ export function error(error) {
     error: error
   };
 }
-
-export function success() {
-  return {
-    type: 'BID_SUCCESS'
-  };
-}
-
-export function reset() {
-  return {
-    type: 'RESET'
-  };
-}
