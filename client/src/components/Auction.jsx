@@ -20,7 +20,6 @@ class Auction extends Component {
     this.handleClick = this.handleClick.bind(this);
   }
 
-
   componentWillMount() {
     const auctionId = this.props.match.params.auctionId;
     const { dispatch, user } = this.props;
@@ -62,11 +61,6 @@ class Auction extends Component {
     }
   }
 
-  componentWillUnmount() {
-    const { dispatch } = this.props;
-    dispatch(Bids.reset());
-  }
-  
   handleSave(auction_id) {
     fetch(`/saves/save`, {
       method: 'POST',
@@ -132,7 +126,6 @@ class Auction extends Component {
       } else if(bid.bid > buyout) {
         alert('How about bidding for the buyout amount?');
       } else {
-        dispatch(Bids.toggleSend());
         fetch(`/auctions/${auctionId}/bids`, {
           method: 'POST',
           headers: new Headers({
@@ -145,18 +138,15 @@ class Auction extends Component {
         })
         .then(response => {
           if (!response.ok) {
-            const error = new Error(response.statusText);
-            error.status = response.status;
-            throw error;
+            throw Error(response.json());
           }
           return response.json();
         })
         .then(data => {
-          const sentBid = {};
-          sentBid.current_bid = data.current_bid;
-          sentBid.current_bid_id = data.current_bid_id;
-          dispatch(Auctions.updateBid(sentBid));
-          dispatch(Bids.success());
+          bid.current_bid = data.current_bid;
+          bid.current_bid_id = data.current_bid_id;
+          dispatch(Auctions.updateBid(bid));
+          alert(`You have successfully bid $${data.current_bid}`);
         })
         .catch(err => {
           dispatch(Bids.error(err));
@@ -218,7 +208,7 @@ const mapStateToProps = (state) => {
   return {
     auction: state.auction,
     user: state.user,
-    bid: state.bid,
+    bid: state.bid
   }
 }
 export default connect(mapStateToProps)(Auction);

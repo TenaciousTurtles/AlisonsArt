@@ -12,7 +12,7 @@ const auctionsReducer = (state = initialState, action) => {
     case 'FETCH_AUCTION_ERROR':
       return {
         ...state,
-        fetchAuctionsError: action.fetchAuctionsError,
+        fetchAuctionsError: 'fetching auction error!',
         hasErrored: true
       };
     case 'FETCHING_AUCTION':
