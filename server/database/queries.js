@@ -392,7 +392,7 @@ module.exports = {
     let auctionId = Number(auction_id);
     return db.oneOrNone('SELECT * FROM saves WHERE user_id=$1 AND auction_id=$2', [user_id, auctionId])
     .then(data => {
-      if(data && Object.keys(data).length > 0) {
+      if(data) {
         return 'existing save';
       }
       return db.none(`INSERT INTO saves \
